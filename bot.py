@@ -7,7 +7,6 @@ from telebot import types
 from script import Uploader
 from pathlib import Path
 from messages import *
-import hashlib
 from dotenv import load_dotenv
 
 load_dotenv()
