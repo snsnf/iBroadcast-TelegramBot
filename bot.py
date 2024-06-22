@@ -247,8 +247,6 @@ callback_handlers = {
     "help": handle_help
 }
 
-bot.polling(none_stop=True)
-
 while True:
     try:
         bot.polling(none_stop=True)
