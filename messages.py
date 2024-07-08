@@ -46,6 +46,7 @@ Welcome! Use this bot to upload music to your iBroadcast account 🎶
 
 It's that simple! Enjoy your music! 🎧"
 
+If the bot is down or you face any problems, just ping us at @iBroadCastSupportbot 👀
 
 to show up the menu use /start 💫
     
