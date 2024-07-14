@@ -171,8 +171,7 @@ def handle_list(call: telebot.types.CallbackQuery):
     if not files:
         bot.send_message(call.message.chat.id, no_files, parse_mode='Markdown')
         return
-    files = [f"<blockquote>{
-        i+1}. {file}</blockquote>" for i, file in enumerate(files)]
+    files = [f"<blockquote>{i+1}. {file}</blockquote>" for i, file in enumerate(files)]
     files_string = "\n".join(files)
     bot.send_message(call.message.chat.id, "<b>📂 Files:</b>\n" +
                      files_string, parse_mode='HTML')
