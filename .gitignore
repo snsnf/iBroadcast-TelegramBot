@@ -2,4 +2,6 @@
 /uploads
 /user_data.db
 /.venv
+/linux
+**/__pycache__
 .env
