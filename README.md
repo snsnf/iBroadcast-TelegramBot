@@ -27,6 +27,8 @@ It's that simple! Enjoy your music! 🎧
 2. **Create `.env` file:**
     ```text
     TOKEN=your_bot_token
+    API_ID=your_app_id
+    API_HASH=your_app_hash
     ```
 
 3. **Install requirements:**
@@ -48,7 +50,7 @@ Contributions are what make the open-source community such an amazing place to l
 If you have any questions, suggestions, or encounter any issues, please don't hesitate to reach out:
 
 - Feel free to [open an issue](https://github.com/snsnf/iBroadcast-TelegramBot/issues) on GitHub. ✅
-- You can also reach out via [Reddit](https://www.reddit.com/r/ibroadcast/comments/1dke63t/ibroadcast_uploader_telegram_bt) for suggestions.
+- You can also reach out via [Reddit](https://www.reddit.com/r/ibroadcast/comments/1e7mwnd/ibroadcast_uploader_telegram_bot) for suggestions.
 
 I'm here to help and improve your experience with the iBroadcast Uploader Telegram bot. Your feedback is valuable!
 
