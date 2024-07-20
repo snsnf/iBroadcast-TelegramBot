@@ -57,3 +57,6 @@ adding_to_list = "*🎵 Adding to the list...*"
 
 # Successfully added to the list message
 added_to_list = "*✅ Successfully added to the list.*"
+
+# Storage kimit
+storage_limit = "❗ Your storage exceeds *100MB*. Please upload the music before sending new ones."
