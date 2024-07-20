@@ -4,19 +4,14 @@ import sqlite3
 import time
 import telebot
 from telebot import types
-from script import Uploader  
+from script import Uploader 
 from pathlib import Path
 from messages import *  
 from dotenv import load_dotenv
-from pyrogram import Client, filters
 
 load_dotenv()
 
-api_id = int(os.getenv('API_ID')) 
-api_hash = os.getenv('API_HASH')
-bot_token = os.getenv('TOKEN')
-app = Client("iBroadcast_uploader", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
-bot = telebot.TeleBot(bot_token)
+bot = telebot.TeleBot(os.getenv('TOKEN'))
 
 uploader = None
 dir_path = Path(__file__).parent.absolute()
@@ -106,6 +101,12 @@ def create_user_directory(user_id):
     return directory
 
 
+def sanitize_filename(filename):
+    invalid_chars = '<>:"/\\|?*'
+    for char in invalid_chars:
+        filename = filename.replace(char, '')
+    return filename
+
 def get_folder_size(path):
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(path):
@@ -113,13 +114,6 @@ def get_folder_size(path):
             fp = os.path.join(dirpath, f)
             total_size += os.path.getsize(fp)
     return total_size
-
-def sanitize_filename(filename):
-    invalid_chars = '<>:"/\\|?*'
-    for char in invalid_chars:
-        filename = filename.replace(char, '')
-    return filename
-
 
 def delete_files(directory, message: telebot.types.Message):
     for filename in os.listdir(directory):
@@ -222,37 +216,41 @@ def callback_query(call: telebot.types.CallbackQuery):
 
 @bot.message_handler(content_types=['audio', 'voice'])
 def save_audio(message: telebot.types.Message):
-    chat_id = message.chat.id
-    if not is_user_logged_in(chat_id):
-        bot.send_message(chat_id, login_first, reply_markup=login_markup, parse_mode='Markdown')
+    if not is_user_logged_in(message.chat.id):
+        bot.send_message(message.chat.id, login_first,
+                         reply_markup=login_markup, parse_mode='Markdown')
         return
-
+    
     folder_size = get_folder_size(user_path)
     if folder_size > 100 * 1024 * 1024:
-        bot.send_message(chat_id, storage_limit,reply_markup=universal_markup, parse_mode='Markdown')
+        bot.send_message(message.chat.id, storage_limit,reply_markup=universal_markup, parse_mode='Markdown')
         return
+    
 
-    sent_message = bot.send_message(chat_id, adding_to_list, parse_mode='Markdown')
+    sent_message = bot.reply_to(message, adding_to_list, parse_mode='Markdown')
     try:
         if message.audio:
-            file_id = message.audio.file_id
+            file_info = bot.get_file(message.audio.file_id)
             title = message.audio.title if message.audio.title else f"audio_{message.audio.file_unique_id}"
             sanitized_title = sanitize_filename(title)
         elif message.voice:
-            file_id = message.voice.file_id
-            file_unique_id = message.voice.file_unique_id if message.voice.file_unique_id else "voice"
-            sanitized_title = sanitize_filename(f"voice_message_{file_unique_id}")
+            file_info = bot.get_file(message.voice.file_id)
+            sanitized_title = sanitize_filename(
+                f"voice_message_{message.voice.file_unique_id}")
         else:
             return
-
-        new_file_path = os.path.join(user_path, f'{sanitized_title}.mp3')
-        app.download_media(file_id, file_name=new_file_path)
-
-        if sent_message:
-            bot.delete_message(chat_id, sent_message.message_id)
-        bot.send_message(chat_id, added_to_list, reply_markup=universal_markup, parse_mode='Markdown')
+        downloaded_file = bot.download_file(file_info.file_path)
+        with open(os.path.join(user_path, f'{sanitized_title}.mp3'), 'wb') as new_file:
+            new_file.write(downloaded_file)
+        bot.delete_message(message.chat.id, sent_message.message_id)
+        bot.send_message(message.chat.id, added_to_list,
+                        reply_markup=universal_markup, parse_mode='Markdown')
+        
+    except telebot.apihelper.ApiTelegramException as e:
+        if 'file is too big' in str(e):
+            bot.send_message(message.chat.id, "❌ The bot only accepts music files up to 20MB in size.", parse_mode='Markdown')
     except Exception as e:
-        bot.send_message(chat_id, f"❌ An error occurred: {e}", parse_mode='Markdown')
+        bot.send_message(message.chat.id, f"❌ An error occurred:", parse_mode='Markdown')
 
 
 callback_handlers = {
@@ -263,11 +261,9 @@ callback_handlers = {
     "help": handle_help
 }
 
-
-try:
-    app.start()
-    bot.polling(none_stop=True)
-    
-except Exception as e:
-    print(f"Bot polling failed, restarting in 5 seconds. Error:\n{e}")
-    time.sleep(5)
+while True:
+    try:
+        bot.polling(none_stop=True)
+    except Exception as e:
+        print(f"Bot polling failed, restarting in 5 seconds. Error:\n{e}")
+        time.sleep(5)

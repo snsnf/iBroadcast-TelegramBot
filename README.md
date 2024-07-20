@@ -27,8 +27,6 @@ It's that simple! Enjoy your music! 🎧
 2. **Create `.env` file:**
     ```text
     TOKEN=your_bot_token
-    API_ID=your_app_id
-    API_HASH=your_app_hash
     ```
 
 3. **Install requirements:**
