@@ -80,6 +80,7 @@ def ask_for_login_token(message: telebot.types.Message):
 def is_user_logged_in(user_id):
     global uploader, user_path
     user_path = os.path.join(dir_path, 'uploads', str(user_id))
+    create_user_directory(user_id)
     c.execute(
         "SELECT login_token FROM users WHERE user_id = ? AND state = 'login'", (user_id,))
     result = c.fetchone()
